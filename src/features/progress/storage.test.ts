@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createInitialState, parseSavedState } from './storage'
+import { createInitialState, parseSavedState, readSavedState, STORAGE_KEY } from './storage'
 
 describe('persisted state boundary', () => {
   it('roundtrips spoiler level, narrative stage and a manually completed objective', () => {
@@ -40,5 +40,47 @@ describe('persisted state boundary', () => {
     expect(parseSavedState(JSON.stringify(state)).progress['persona-3']!.completedIds).toEqual([
       'persona-3-1',
     ])
+  })
+})
+
+describe('AchivRun storage compatibility', () => {
+  const storage = (entries: Record<string, string>) => ({
+    getItem: (key: string) => entries[key] ?? null,
+  })
+
+  it('keeps the existing checklist, chapter and spoiler preference after the rename', () => {
+    const state = createInitialState()
+    state.spoilerLevel = 2
+    state.progress['persona-3']!.chapter = 3
+    state.progress['persona-3']!.completedIds.push('persona-3-1')
+    expect(readSavedState(storage({ 'missable:v1': JSON.stringify(state) }))).toEqual(state)
+  })
+
+  it('prefers current AchivRun state over the legacy backup', () => {
+    const current = createInitialState()
+    const legacy = { ...current, spoilerLevel: 3 }
+    expect(
+      readSavedState(
+        storage({
+          [STORAGE_KEY]: JSON.stringify(current),
+          'missable:v1': JSON.stringify(legacy),
+        }),
+      ),
+    ).toEqual(current)
+  })
+
+  it('does not restore an older spoiler setting when current state is corrupt', () => {
+    expect(() =>
+      readSavedState(
+        storage({
+          [STORAGE_KEY]: '{',
+          'missable:v1': JSON.stringify({ ...createInitialState(), spoilerLevel: 3 }),
+        }),
+      ),
+    ).toThrow()
+  })
+
+  it('starts with spoiler protection when neither namespace has saved data', () => {
+    expect(readSavedState(storage({}))).toEqual(createInitialState())
   })
 })

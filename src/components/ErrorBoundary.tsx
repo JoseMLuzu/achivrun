@@ -10,7 +10,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
       <main className="empty-state not-found">
         <h1>La partida se ha pausado.</h1>
         <p>No pudimos mostrar esta pantalla. Recarga para volver a intentarlo.</p>
-        <Button onClick={() => window.location.reload()}>Recargar Missable</Button>
+        <Button onClick={() => window.location.reload()}>Recargar AchivRun</Button>
       </main>
     ) : (
       this.props.children

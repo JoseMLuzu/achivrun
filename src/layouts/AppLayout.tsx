@@ -49,10 +49,10 @@ export function AppLayout() {
           : 'Tu juego'
   const sidebarContent = (
     <>
-      <Link className="brand" to="/" aria-label="Missable, inicio">
+      <Link className="brand" to="/" aria-label="AchivRun, inicio">
         <img src="/favicon.svg" alt="" />
         <span>
-          missable<span className="brand-period">.</span>
+          AchivRun<span className="brand-period">.</span>
         </span>
       </Link>
       <div className="sidebar-caption">TU COMPAÑERO DE JUEGO</div>
@@ -99,7 +99,7 @@ export function AppLayout() {
               setAboutOpen(true)
             }}
           >
-            Conoce Missable <ArrowUpRight size={13} />
+            Conoce AchivRun <ArrowUpRight size={13} />
           </button>
         </div>
         <div className="local-profile">
@@ -168,7 +168,7 @@ export function AppLayout() {
         </main>
         <footer className="site-footer">
           <span>
-            missable<span className="text-primary">.</span>{' '}
+            AchivRun<span className="text-primary">.</span>{' '}
             <span className="footer-tagline">Never miss an achievement again.</span>
           </span>
           <span>Hecho para disfrutar el camino.</span>
@@ -178,7 +178,7 @@ export function AppLayout() {
         open={aboutOpen}
         onOpenChange={setAboutOpen}
         title="Cada logro. A tu ritmo."
-        description="Missable te acompaña sin adelantarse a tu historia."
+        description="AchivRun te acompaña sin adelantarse a tu historia."
       >
         <div className="about-copy">
           <p>

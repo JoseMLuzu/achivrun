@@ -29,7 +29,10 @@ describe('route rendering and spoiler-safe initial HTML', () => {
     ['/games/not-a-game', 'Esta aventura no está aquí.'],
     ['/unknown', 'Esta aventura no está aquí.'],
   ])('renders %s', (path, expected) => {
-    expect(renderPage(path)).toContain(expected)
+    const markup = renderPage(path)
+    expect(markup).toContain(expected)
+    expect(markup).toContain('AchivRun')
+    expect(markup).not.toContain('Missable')
   })
   it.each([1, 2] as const)(
     'never puts a secret name or full instructions into HTML at level %s',

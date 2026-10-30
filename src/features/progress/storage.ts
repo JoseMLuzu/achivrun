@@ -2,11 +2,17 @@ import { achievements } from '@/data/achievements'
 import { games } from '@/data/games'
 import type { PlayerProgress, SpoilerLevel } from '@/types'
 
-export const STORAGE_KEY = 'missable:v1'
+export const STORAGE_KEY = 'achivrun:v1'
+const LEGACY_STORAGE_KEY = 'missable:v1'
 export interface SavedState {
   version: 1
   spoilerLevel: SpoilerLevel
   progress: Record<string, PlayerProgress>
+}
+/** Keep existing players' progress when moving to the AchivRun storage namespace. */
+export function readSavedState(storage: Pick<Storage, 'getItem'>): SavedState {
+  const raw = storage.getItem(STORAGE_KEY) ?? storage.getItem(LEGACY_STORAGE_KEY)
+  return raw === null ? createInitialState() : parseSavedState(raw)
 }
 export function createInitialState(): SavedState {
   return {

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { SpoilerLevel } from '@/types'
-import { createInitialState, parseSavedState, STORAGE_KEY, type SavedState } from './storage'
+import { createInitialState, readSavedState, STORAGE_KEY, type SavedState } from './storage'
 
 interface ProgressContextValue {
   state: SavedState
@@ -12,8 +12,7 @@ interface ProgressContextValue {
 const ProgressContext = createContext<ProgressContextValue | null>(null)
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return { state: raw ? parseSavedState(raw) : createInitialState(), error: null }
+    return { state: readSavedState(localStorage), error: null }
   } catch {
     return {
       state: createInitialState(),

@@ -161,7 +161,7 @@ export function DashboardPage() {
       <div className="demo-disclaimer">
         <span className="demo-dot" />
         <p>
-          Estás explorando Missable con datos de ejemplo. Los logros, avances y reglas son
+          Estás explorando AchivRun con datos de ejemplo. Los logros, avances y reglas son
           ficticios.
         </p>
       </div>

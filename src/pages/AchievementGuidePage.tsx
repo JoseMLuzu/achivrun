@@ -72,7 +72,7 @@ function Guide({ game }: { game: Game }) {
       <PageHeading
         eyebrow="GUÍA INTERACTIVA DE EJEMPLO"
         title="Un logro a la vez."
-        description={`${game.title} · Objetivos ficticios para explorar Missable.`}
+        description={`${game.title} · Objetivos ficticios para explorar AchivRun.`}
         action={<SpoilerControl />}
       />
       <div className="guide-progress">
