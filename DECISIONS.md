@@ -1,47 +1,53 @@
-# Decisiones de la primera etapa
+# AchivRun architecture decisions
 
-## Identidad visual
+## Visual identity
 
-Carbón, gris plata y Manrope variable. El acento neutral se comparte entre botones, progreso, navegación y marca; los avisos conservan sus colores semánticos. La portada del juego ocupa el papel principal; los paneles secundarios ayudan a tomar decisiones sin convertir el inicio en un tablero de estadísticas. Los estilos están separados por área y usan tokens compartidos de Tailwind.
+The interface uses charcoal surfaces, a neutral silver accent, and the Manrope variable font. The accent is shared by buttons, progress indicators, navigation, and branding. Warning states retain their semantic colors. Game artwork provides the main visual focus, while secondary panels help players choose what to do next without turning the dashboard into a statistics board. Styles are grouped by area and share Tailwind-compatible tokens.
 
-Las primitivas de shadcn/ui se mantienen como código propio en `components/ui`, con variantes CVA y comportamiento accesible de Radix para diálogos. Esto evita incorporar un sistema de componentes completo para una interfaz pequeña. `components.json` deja preparado el registro y sus alias.
+The application name is **AchivRun**, and the npm package is named `achivrun`. The existing Spanish interface remains in Spanish; repository Markdown documentation is maintained in English.
 
-La escala tipográfica utiliza tokens en rem: contenido principal de 16 px, controles y texto secundario de 14 px, etiquetas de 12 px y encabezados de sección de 18 px con la configuración predeterminada del navegador. Los tamaños se conservan en móvil; se reorganizan columnas y controles para dar espacio a la lectura.
+Customized shadcn/ui primitives live in `components/ui`, using CVA for variants and Radix for accessible dialog behavior. This keeps component code editable without adding a large component framework. `components.json` configures registry conventions and import aliases.
 
-## Dominio separado de la presentación
+Typography uses rem-based tokens: 16 px for primary content, 14 px for controls and secondary text, 12 px for metadata, and 18 px for section headings at the browser's default font size. Mobile layouts retain readable type sizes and reorganize columns and controls to make space.
 
-`Game`, `Achievement`, `PlayerProgress` y `AchievementWarning` son interfaces independientes de React. `AchievementCategory`, `SpoilerLevel` y los estados son uniones cerradas para excluir valores inválidos. Un logro admite múltiples categorías.
+## Domain and presentation boundaries
 
-Los componentes consumen fixtures de `data/`, nunca contienen condiciones reales de un juego. El evaluador devuelve un estado y un mensaje seguro; una futura respuesta del backend puede adaptarse a ese contrato. La ausencia de una regla produce «sin determinar», no una garantía de seguridad.
+`Game`, `Achievement`, `PlayerProgress`, and `AchievementWarning` are React-independent interfaces. `AchievementCategory`, `SpoilerLevel`, and objective states use closed unions to prevent invalid values. An achievement can belong to multiple categories.
 
-## Antiespoilers como política compartida
+Components consume fixtures from `data/` rather than embedding real game conditions. The demo evaluator returns an objective state and a safe message; a future backend adapter can provide the same contract. Missing rules produce an unknown state rather than a guarantee that an objective is safe.
 
-`presentAchievement` decide qué puede presentarse y buscarse según el nivel. La identidad secreta se oculta en los niveles 1 y 2. No se usan imágenes de logros: un icono neutral evita filtrar spoilers visuales.
+## Shared spoiler policy
 
-El nivel 3 se activa después de confirmar y cada bloque de instrucciones requiere otra acción explícita. El contenido cerrado no se inserta en el HTML. Las filas se remontan al cambiar de nivel para cerrar cualquier revelación previa. Es protección de la experiencia visual, no control de acceso: los fixtures están incluidos en el bundle del frontend.
+`presentAchievement` determines which information can be displayed and searched at each spoiler level. Secret identities remain hidden at levels 1 and 2. Achievement artwork is not used; neutral icons avoid revealing visual spoilers.
 
-## Estado local pequeño y versionado
+Level 3 requires explicit confirmation, and each instruction block requires an additional reveal action. Collapsed content is not inserted into the HTML. Achievement rows remount when the level changes, closing previous reveals. This protects the visible experience rather than enforcing data access: frontend fixtures are included in the application bundle.
 
-React Context es suficiente para compartir etapa, checklist y nivel. Un estado mínimo evita duplicar porcentajes: estos se derivan del checklist. No se añadió un gestor global ni una capa de caché para datos que aún no vienen de un servidor.
+## Small, versioned local state
 
-El esquema `missable:v1` valida tipos, etapas e identificadores al leerlo. Descarta IDs ajenos y duplicados; los datos inválidos vuelven al escenario inicial con aviso. Si el navegador impide guardar, la sesión continúa en memoria y muestra el límite al usuario.
+React Context shares the selected stage, checklist, and spoiler level. Percentages are derived from the checklist instead of stored separately. There is no additional global state manager or server cache while data remains local.
 
-No se escucha todavía el evento `storage` entre pestañas. La persistencia local no constituye sincronización ni reemplaza una cuenta.
+The `achivrun:v1` schema validates types, narrative stages, and achievement identifiers on read. Foreign IDs and duplicates are discarded. Invalid state falls back to the initial demo scenario with a warning. If the browser blocks writes, the session continues in memory and reports the limitation.
 
-## Estimación a partir de logros desbloqueados
+For compatibility with existing players, reads fall back to the previous storage key only when the new key is absent. Valid legacy state is subsequently written to the new namespace by the provider. The old key is retained as a backup. Corrupt current state does not silently fall back to potentially outdated legacy preferences.
 
-`inferProgress` recibe eventos con fecha de desbloqueo y un mapa curado de hitos narrativos. Usa el hito más avanzado conocido; un logro opcional más reciente no elimina esa evidencia. No deduce un límite superior de logros ausentes ni aplica un orden lineal a juegos con progresión no lineal.
+The app does not yet listen for cross-tab `storage` events. Browser persistence does not provide synchronization or replace a user account.
 
-El resultado expresa «alcanzaste al menos esta etapa», no una ubicación exacta. La confianza se refiere a la evidencia del hito: es alta cuando el último desbloqueo es ese hito y está asociado explícitamente a la partida seleccionada. El historial de cuenta, logros posteriores sin significado narrativo o desbloqueos simultáneos producen confianza media. Sin evidencia válida devuelve estado desconocido.
+## Inferring progress from unlocked achievements
 
-Los eventos sin asociación explícita a una partida son historial de cuenta. No prueban el estado de un guardado actual, especialmente al repetir el juego. Las estimaciones siempre requieren confirmación y nunca modifican `PlayerProgress` ni activan por sí mismas advertencias de expiración.
+`inferProgress` accepts timestamped unlock events and a curated map of narrative milestones. It selects the most advanced known milestone; a newer optional achievement does not erase that evidence. Missing achievements do not establish an upper bound, and the linear estimator does not handle nonlinear progression.
 
-Los resultados contienen índices y motivos, sin nombres, iconos ni descripciones de logros. Una futura interfaz debe presentar etiquetas de etapa seguras para el nivel de spoilers. Los mapas de demostración están separados de los verificados. El ejemplo usa un juego enteramente ficticio, sin atribuir hitos reales a Persona 3 Reload.
+A result means that the player reached at least the identified stage, rather than establishing an exact current location. Confidence describes the milestone evidence: it is high when that milestone is the latest unlock and is explicitly associated with the selected playthrough. Account history, newer non-narrative unlocks, and simultaneous unlocks produce medium confidence. Without valid evidence, the result is unknown.
 
-El algoritmo está preparado y probado como función de dominio. La recepción de eventos desde Steam y el panel para confirmar una sugerencia todavía no están conectados. El checklist actual no guarda fechas ni identifica partidas, por lo que no se utiliza para inventar un historial de desbloqueos.
+Events without an explicit playthrough association represent account history. They do not establish the current save's position, especially when replaying a game. Estimates always require confirmation and never update `PlayerProgress` or independently trigger expiration warnings.
 
-## Alcance incremental
+Results contain stage indices and reason codes rather than achievement names, icons, or descriptions. A future interface must use stage labels appropriate for the selected spoiler level. Demo mappings are kept separate from verified mappings. The sample uses an entirely fictional game and does not attribute real milestones to Persona 3 Reload.
 
-El dashboard y la biblioteca forman el núcleo de la primera etapa. Las fichas y guías son recorridos básicos para probar modelos y navegación; no incluyen reglas avanzadas ni contenido real. Se omitieron estadísticas no verificadas de horas y partidas.
+The estimator is implemented and tested as a domain function. Steam event ingestion and a suggestion confirmation panel are not connected yet. The current checklist records neither unlock timestamps nor playthrough identity, so it is not used to fabricate an unlock history.
 
-Se añadieron pruebas para límites que afectan al producto: ventanas de ejemplo, persistencia corrupta, categorías, búsqueda segura y ausencia de spoilers en el HTML. El build comprueba TypeScript. La revisión visual interactiva queda pendiente por la restricción `EPERM` del entorno local.
+## Incremental scope and validation
+
+The dashboard and library form the first stage's core. Game details and guides provide basic flows for exercising the models and navigation, without verified game content or advanced narrative rules. Unverified time and playthrough estimates are omitted.
+
+Tests cover behavior that affects the product: fictional objective windows, corrupt persisted state, compatibility with existing storage, catalog filtering, inference boundaries, and the absence of spoilers from initial HTML. The production build checks TypeScript. Interactive visual and accessibility verification remain pending.
+
+Flask, PostgreSQL with SQLAlchemy, Steam OpenID, and the Steam Web API are future integration points. No backend or authentication flow is simulated in this stage.

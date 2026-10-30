@@ -1,82 +1,90 @@
-# missable.
+# AchivRun
 
-**Never miss an achievement again.** Un compañero de juego que permite completar objetivos sin adelantarse a la historia.
+**Never miss an achievement again.** A gaming companion for tracking achievement goals without getting ahead of the story.
 
-Primera etapa del frontend: React, Vite, TypeScript estricto, Tailwind CSS 4, componentes shadcn/ui adaptados sobre Radix, React Router, Lucide y Motion. Solo frontend: sin backend simulado, autenticación ni llamadas a la Steam Web API.
+[GitHub repository](https://github.com/JoseMLuzu/achivrun)
 
-## Ejecutar
+AchivRun is currently a frontend prototype built with React, Vite, strict TypeScript, Tailwind CSS 4, customized shadcn/ui components backed by Radix, React Router, Lucide, and Motion. It has no backend, authentication, or Steam Web API integration. The current interface is in Spanish; project documentation is in English.
 
-Requiere Node.js 22.12+ o 24 LTS y npm. El proyecto se construyó con Node 24.
+## Getting started
+
+Use Node.js 22.12+ or Node.js 24 LTS and npm. Development has been verified with Node.js 24.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Abre la dirección que muestra Vite, normalmente `http://127.0.0.1:5173`.
+Open the local URL printed by Vite, usually `http://127.0.0.1:5173`.
 
 ```sh
-npm test          # Reglas, almacenamiento, filtros, rutas y protección de spoilers
-npm run build    # TypeScript y build de producción en dist/
-npm run preview  # Revisar el build localmente
+npm test          # Domain rules, persistence, filters, inference, and route rendering
+npm run build    # TypeScript checks and a production build in dist/
+npm run preview  # Preview the production build locally
 ```
 
-El servidor de producción debe redirigir rutas desconocidas a `index.html`, conservando la URL, para que React Router resuelva enlaces directos como `/games/persona-3/guide`.
+A production host must serve `index.html` for application routes while preserving the requested URL. This allows React Router to resolve direct links such as `/games/persona-3/guide`.
 
-## Qué incluye
+## Features
 
-- Dashboard centrado en retomar Persona 3 Reload, actualizar la etapa y revisar objetivos.
-- Biblioteca de seis juegos con búsqueda, filtros por avance, ordenación y estados vacíos.
-- Fichas de juegos con progreso, categorías y acceso a guías de ejemplo.
-- Cuatro guías interactivas de demostración con búsqueda, categorías combinables, estados, checklist y pistas.
-- Tres niveles de spoilers. Activar el nivel 3 requiere confirmación; las instrucciones se revelan individualmente bajo demanda. Al reducir el nivel, se desmontan los paneles abiertos.
-- Nombres e iconos secretos protegidos. Las búsquedas utilizan la misma proyección segura que las tarjetas.
-- Persistencia de etapa, checklist y preferencias en `localStorage`, con esquema versionado, validación y mensajes ante errores.
-- Motor de estimación preparado en `features/progress/inferProgress.ts`: utiliza hitos narrativos y fechas de desbloqueo para calcular una etapa mínima alcanzada. Incluye confianza de la evidencia, separación entre historial de cuenta y partida, y datos sintéticos en `data/progress-inference-demo.ts`. Todavía no está conectado a la interfaz ni a Steam; no cambia el progreso manual.
-- Navegación móvil, diálogos con gestión de foco, etiquetas accesibles, enlace para saltar al contenido y respeto por movimiento reducido.
+- A dashboard for resuming Persona 3 Reload, updating the selected stage, and reviewing objectives.
+- A six-game library with search, progress filters, sorting, and empty states.
+- Game details with achievement progress, categories, and links to example guides.
+- Four interactive example guides with search, overlapping categories, objective states, manual checklists, and optional hints.
+- Three spoiler levels. Full-guide mode requires confirmation, and detailed instructions require a separate action for each achievement. Changing levels closes previously expanded content.
+- Protected secret names and neutral achievement icons. Search uses the same spoiler-safe projection as the visible achievement list.
+- Local persistence for narrative stage, checklist, and spoiler preferences, including schema validation and storage error messages.
+- A progress inference engine in `src/features/progress/inferProgress.ts`. It uses mapped narrative milestones and unlock timestamps to estimate the minimum stage reached. It distinguishes account history from a specific playthrough and reports confidence in the evidence. It is not yet connected to Steam or the interface and does not change manual progress.
+- Mobile navigation, focus-managed dialogs, accessible labels, a skip link, and reduced-motion support.
 
-## Datos y recursos
+## Demo data and assets
 
-**Todos los logros, cantidades, avances, etapas y reglas son ficticios.** No son una guía real para ninguno de los juegos representados. El estado inicial incluye logros marcados como ejemplo; no procede de una cuenta de Steam. Las etapas no representan capítulos ni fechas reales de Persona 3 Reload.
+**All achievement records, totals, progress, narrative stages, and rules are fictional.** They are not real guides for the represented games. Initially completed achievements are sample state rather than information imported from a Steam account. Demo stages do not represent actual Persona 3 Reload chapters or dates.
 
-No hay estimaciones verificadas de horas ni partidas: la interfaz indica «Sin dato verificado». No se han inventado fechas límite reales.
+There are no verified completion-time or playthrough estimates, so the interface marks those fields as unavailable. No real achievement deadlines have been invented.
 
-Los nombres de los juegos y sus portadas permiten identificar el catálogo. Las imágenes se cargan desde el CDN público de Steam, sin consultar su API. Requieren conexión y tienen un reemplazo visual ante errores; no se distribuyen imágenes descargadas en este repositorio. Manrope se sirve localmente mediante Fontsource. Los nombres, marcas e imágenes pertenecen a sus respectivos titulares.
+Game names and cover art identify the sample catalog. Images load from Steam's public CDN without using the Steam Web API. They require a network connection and have a visual fallback if loading fails. Downloaded game artwork is not included in this repository. Manrope is served locally through Fontsource. Game names, trademarks, and artwork belong to their respective owners.
 
-## Estructura
+## Project structure
 
 ```text
 src/
-  components/                 Componentes visuales compartidos y primitivas ui/
-  data/                       Juegos y logros ficticios
+  components/                 Shared presentation components and ui/ primitives
+  data/                       Fictional games, achievements, and inference scenarios
   features/
-    achievements/             Filas de logros y resumen de objetivos
-    games/                    Tarjetas, búsqueda y selectores de progreso
-    progress/                 Estado local, persistencia y evaluador ficticio
-    spoiler-protection/       Proyección segura y selector de nivel
-  layouts/                    Navegación, shell y pie de página
-  pages/                      Composición de pantallas
-  styles/                     Tokens y estilos por área
-  types/                      Contratos de dominio
-  lib/                        Utilidades compartidas
+    achievements/             Achievement rows and objective previews
+    games/                    Game cards, catalog filtering, and progress selectors
+    progress/                 Local state, persistence, demo rules, and inference
+    spoiler-protection/       Spoiler-safe presentation and level controls
+  layouts/                    Application shell, navigation, and footer
+  pages/                      Screen composition
+  styles/                     Shared tokens and styles grouped by area
+  types/                      Domain contracts
+  lib/                        Shared utilities
 ```
 
-Las funciones de reglas, búsqueda, presentación segura y almacenamiento no dependen de componentes. Esto permite probarlas y reemplazar sus fuentes de datos sin reescribir las pantallas. Los motivos de las decisiones están en [DECISIONS.md](DECISIONS.md).
+Rule evaluation, catalog filtering, spoiler-safe presentation, storage parsing, and progress inference are independent functions. They can be tested and connected to future data sources without rewriting the screens. See [DECISIONS.md](DECISIONS.md) for the architectural rationale.
 
-## Verificación de esta entrega
+## Local data
 
-- Build de producción y comprobación de TypeScript: correctos.
-- 48 pruebas automatizadas: correctas, incluidas inferencia narrativa, rutas y ausencia de contenido protegido en el HTML inicial.
-- La instalación final de dependencias informó cero vulnerabilidades. Un intento posterior de repetir `npm audit` no pudo contactar al registro por un error DNS (`ENOTFOUND`).
-- Revisión interactiva y responsive en navegador: **pendiente**. El entorno de ejecución bloqueó la apertura del servidor local con `listen EPERM`; no se considera una prueba visual completada.
+Progress and preferences are stored under `achivrun:v1` in `localStorage`. Existing valid state from the previous storage namespace is read as a fallback and saved under the new key. The previous key remains available as a backup.
 
-## Próxima etapa
+Storage belongs to the current browser and origin. It is not account synchronization, and concurrent tabs are not synchronized yet. If storage is unavailable, the app continues in memory and displays a warning.
 
-1. Revisar escritorio, móvil, teclado y navegación con un lector de pantalla en el navegador local.
-2. Sustituir un pequeño grupo de ejemplos de Persona 3 Reload por información verificada, con fuente, fecha y revisión de seguridad de spoilers.
-3. Definir un contrato de reglas verificadas y su adaptador antes de introducir Flask/PostgreSQL.
-4. Incorporar Steam OpenID y sincronización de logros después, manteniendo las claves y llamadas autenticadas en el servidor.
+## Validation
 
-Pendientes deliberados: datos reales, integración de Steam, cuentas, sincronización, historial de partidas, interfaz para confirmar estimaciones y reglas complejas basadas en decisiones. No se ha publicado ni desplegado el proyecto.
+- `npm test` covers narrative rule boundaries, storage validation and compatibility, catalog filtering, inference, route rendering, and the absence of protected content from initial HTML.
+- `npm run build` checks TypeScript and generates the production bundle.
+- Interactive browser, responsive layout, keyboard, and screen-reader verification remain pending. A successful build does not substitute for those checks.
 
-# achivrun
+Source code is hosted on GitHub. The application has not been deployed to a production host.
+
+## Next steps
+
+1. Review desktop and mobile layouts, keyboard navigation, and screen-reader behavior in a local browser.
+2. Replace a small subset of fictional Persona 3 Reload objectives with sourced, reviewed data, including source dates and spoiler classifications.
+3. Add an interface for reviewing and explicitly confirming inferred narrative progress.
+4. Define verified rule contracts and an adapter before introducing Flask, PostgreSQL, and SQLAlchemy.
+5. Add Steam OpenID and achievement synchronization later, keeping credentials and authenticated API requests on the server.
+
+Deliberately deferred: real achievement data, Steam integration, accounts, synchronization, playthrough history, inference confirmation screens, and complex decision-dependent rules.
